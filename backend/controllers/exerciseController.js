@@ -1,4 +1,4 @@
-const Exercise = require("../models/Exercise");
+const Exercise = require("../models/exercise");
 
 // GET all exercises
 const getExercises = async (req, res) => {
