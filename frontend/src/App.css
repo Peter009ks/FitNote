@@ -433,3 +433,17 @@ button:disabled:hover {
     font-size: 18px;
   }
 }
+.success {
+  width: min(900px, 92%);
+  margin: 20px auto 0;
+  padding: 12px;
+
+  background: #e8f5e9;
+  color: #256029;
+
+  border: 1px solid #c8e6c9;
+  border-radius: 7px;
+
+  font-size: 14px;
+  font-weight: 600;
+}

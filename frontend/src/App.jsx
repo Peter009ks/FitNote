@@ -16,6 +16,7 @@ function App() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // ==============================
   // WORKOUT FORM
@@ -151,6 +152,15 @@ function App() {
 
       setWorkouts((current) => [newWorkout, ...current]);
 
+      // Show success message
+      setSuccess("Workout saved successfully!");
+      setError("");
+
+      // Automatically hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+
       // Reset workout fields
       setWorkoutForm((form) => ({
         ...form,
@@ -158,12 +168,12 @@ function App() {
         reps: 10,
         weight: 0,
       }));
-
-      setError("");
     } catch (err) {
       console.error("CREATE WORKOUT ERROR:", err);
 
       console.error("Backend response:", err.response?.data);
+
+      setSuccess("");
 
       setError(
         err.response?.data?.error ||
@@ -214,12 +224,20 @@ function App() {
       // Close exercise form
       setShowExerciseForm(false);
 
-      // Clear error
+      // Clear messages
       setError("");
+      setSuccess("Exercise added successfully!");
+
+      // Automatically hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
     } catch (err) {
       console.error("CREATE EXERCISE ERROR:", err);
 
       console.error("Backend response:", err.response?.data);
+
+      setSuccess("");
 
       setError(
         err.response?.data?.error ||
@@ -281,10 +299,16 @@ function App() {
       </header>
 
       {/* ==========================
-          ERROR
+          ERROR MESSAGE
       ========================== */}
 
       {error && <div className="error">{error}</div>}
+
+      {/* ==========================
+          SUCCESS MESSAGE
+      ========================== */}
+
+      {success && <div className="success">{success}</div>}
 
       {/* ==========================
           DASHBOARD
@@ -407,11 +431,7 @@ function App() {
                   />
                 </label>
 
-                {/* IMPORTANT:
-                    This is also explicitly type="button"
-                    so it does not accidentally submit the
-                    main workout form.
-                */}
+                {/* Add Exercise */}
 
                 <button
                   type="button"
