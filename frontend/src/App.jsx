@@ -130,32 +130,26 @@ function App() {
     event.preventDefault();
 
     try {
-      const response = await axios.post(
-        `${API_URL}/workouts`,
-        {
-          ...workoutForm,
-          sets: Number(workoutForm.sets),
-          reps: Number(workoutForm.reps),
-          weight: Number(workoutForm.weight),
+      const response = await axios.post(`${API_URL}/workouts`, {
+        ...workoutForm,
+        sets: Number(workoutForm.sets),
+        reps: Number(workoutForm.reps),
+        weight: Number(workoutForm.weight),
 
-          // Required/default fields
-          duration: 30,
-          fatigueLevel: 5,
-          isPR: false,
-          prType: "None",
-          notes: "",
-          workoutDate: new Date().toISOString(),
-        }
-      );
+        // Required/default fields
+        duration: 30,
+        fatigueLevel: 5,
+        isPR: false,
+        prType: "None",
+        notes: "",
+        workoutDate: new Date().toISOString(),
+      });
 
       console.log("Workout created:", response.data);
 
       const newWorkout = response.data.workout;
 
-      setWorkouts((current) => [
-        newWorkout,
-        ...current,
-      ]);
+      setWorkouts((current) => [newWorkout, ...current]);
 
       // Reset workout fields
       setWorkoutForm((form) => ({
@@ -169,10 +163,7 @@ function App() {
     } catch (err) {
       console.error("CREATE WORKOUT ERROR:", err);
 
-      console.error(
-        "Backend response:",
-        err.response?.data
-      );
+      console.error("Backend response:", err.response?.data);
 
       setError(
         err.response?.data?.error ||
@@ -190,31 +181,20 @@ function App() {
     event.preventDefault();
 
     try {
-      const response = await axios.post(
-        `${API_URL}/exercises`,
-        {
-          name: exerciseForm.name,
-          muscleGroup: exerciseForm.muscleGroup,
-          equipment: exerciseForm.equipment,
-          difficulty: exerciseForm.difficulty,
-          caloriesPerMinute: Number(
-            exerciseForm.caloriesPerMinute
-          ),
-        }
-      );
+      const response = await axios.post(`${API_URL}/exercises`, {
+        name: exerciseForm.name,
+        muscleGroup: exerciseForm.muscleGroup,
+        equipment: exerciseForm.equipment,
+        difficulty: exerciseForm.difficulty,
+        caloriesPerMinute: Number(exerciseForm.caloriesPerMinute),
+      });
 
-      console.log(
-        "Exercise created:",
-        response.data
-      );
+      console.log("Exercise created:", response.data);
 
       const newExercise = response.data.exercise;
 
       // Add new exercise to the list
-      setExercises((current) => [
-        ...current,
-        newExercise,
-      ]);
+      setExercises((current) => [...current, newExercise]);
 
       // Automatically select the new exercise
       setWorkoutForm((form) => ({
@@ -237,15 +217,9 @@ function App() {
       // Clear error
       setError("");
     } catch (err) {
-      console.error(
-        "CREATE EXERCISE ERROR:",
-        err
-      );
+      console.error("CREATE EXERCISE ERROR:", err);
 
-      console.error(
-        "Backend response:",
-        err.response?.data
-      );
+      console.error("Backend response:", err.response?.data);
 
       setError(
         err.response?.data?.error ||
@@ -280,83 +254,53 @@ function App() {
 
   return (
     <div className="app">
-
       {/* ==========================
           HEADER
       ========================== */}
 
       <header className="header">
-
         <div>
-          <span className="eyebrow">
-            FITNESS TRACKER
-          </span>
+          <span className="eyebrow">FITNESS TRACKER</span>
 
           <h1>FitNote</h1>
 
-          <p>
-            Your fitness progress, simplified.
-          </p>
+          <p>Your fitness progress, simplified.</p>
         </div>
 
         <div className="stats">
-
           <div>
-            <strong>
-              {workouts.length}
-            </strong>
-
-            <span>
-              Workouts
-            </span>
+            <strong>{workouts.length}</strong>
+            <span>Workouts</span>
           </div>
 
           <div>
-            <strong>
-              {prs.length}
-            </strong>
-
-            <span>
-              PRs
-            </span>
+            <strong>{prs.length}</strong>
+            <span>PRs</span>
           </div>
-
         </div>
-
       </header>
 
       {/* ==========================
           ERROR
       ========================== */}
 
-      {error && (
-        <div className="error">
-          {error}
-        </div>
-      )}
+      {error && <div className="error">{error}</div>}
 
       {/* ==========================
           DASHBOARD
       ========================== */}
 
       <main className="dashboard">
-
         {/* ========================
             LOG WORKOUT
         ======================== */}
 
         <section className="card log-card">
+          <span className="section-label">LOG WORKOUT</span>
 
-          <span className="section-label">
-            LOG WORKOUT
-          </span>
-
-          <h2>
-            Record your workout
-          </h2>
+          <h2>Record your workout</h2>
 
           <form onSubmit={handleSubmit}>
-
             {/* Exercise selector */}
 
             <label>
@@ -368,35 +312,24 @@ function App() {
                 onChange={handleChange}
                 required
               >
-                <option value="">
-                  Select exercise
-                </option>
+                <option value="">Select exercise</option>
 
                 {exercises.map((exercise) => (
-                  <option
-                    key={exercise._id}
-                    value={exercise._id}
-                  >
+                  <option key={exercise._id} value={exercise._id}>
                     {exercise.name}
                   </option>
                 ))}
               </select>
             </label>
 
-            {/* Add Exercise */}
+            {/* Add Exercise Toggle */}
 
             <button
               type="button"
               className="add-exercise-button"
-              onClick={() =>
-                setShowExerciseForm(
-                  !showExerciseForm
-                )
-              }
+              onClick={() => setShowExerciseForm((current) => !current)}
             >
-              {showExerciseForm
-                ? "− Cancel"
-                : "+ Add Exercise"}
+              {showExerciseForm ? "− Cancel" : "+ Add Exercise"}
             </button>
 
             {/* ======================
@@ -405,10 +338,7 @@ function App() {
 
             {showExerciseForm && (
               <div className="exercise-form">
-
-                <h3>
-                  Add New Exercise
-                </h3>
+                <h3>Add New Exercise</h3>
 
                 <label>
                   Exercise Name
@@ -418,9 +348,7 @@ function App() {
                     name="name"
                     placeholder="e.g. Deadlift"
                     value={exerciseForm.name}
-                    onChange={
-                      handleExerciseChange
-                    }
+                    onChange={handleExerciseChange}
                     required
                   />
                 </label>
@@ -432,12 +360,8 @@ function App() {
                     type="text"
                     name="muscleGroup"
                     placeholder="e.g. Legs, Back"
-                    value={
-                      exerciseForm.muscleGroup
-                    }
-                    onChange={
-                      handleExerciseChange
-                    }
+                    value={exerciseForm.muscleGroup}
+                    onChange={handleExerciseChange}
                     required
                   />
                 </label>
@@ -449,12 +373,8 @@ function App() {
                     type="text"
                     name="equipment"
                     placeholder="e.g. Barbell"
-                    value={
-                      exerciseForm.equipment
-                    }
-                    onChange={
-                      handleExerciseChange
-                    }
+                    value={exerciseForm.equipment}
+                    onChange={handleExerciseChange}
                     required
                   />
                 </label>
@@ -464,24 +384,14 @@ function App() {
 
                   <select
                     name="difficulty"
-                    value={
-                      exerciseForm.difficulty
-                    }
-                    onChange={
-                      handleExerciseChange
-                    }
+                    value={exerciseForm.difficulty}
+                    onChange={handleExerciseChange}
                   >
-                    <option value="Beginner">
-                      Beginner
-                    </option>
-
+                    <option value="Beginner">Beginner</option>
                     <option value="Intermediate">
                       Intermediate
                     </option>
-
-                    <option value="Advanced">
-                      Advanced
-                    </option>
+                    <option value="Advanced">Advanced</option>
                   </select>
                 </label>
 
@@ -492,14 +402,16 @@ function App() {
                     type="number"
                     name="caloriesPerMinute"
                     min="0"
-                    value={
-                      exerciseForm.caloriesPerMinute
-                    }
-                    onChange={
-                      handleExerciseChange
-                    }
+                    value={exerciseForm.caloriesPerMinute}
+                    onChange={handleExerciseChange}
                   />
                 </label>
+
+                {/* IMPORTANT:
+                    This is also explicitly type="button"
+                    so it does not accidentally submit the
+                    main workout form.
+                */}
 
                 <button
                   type="button"
@@ -508,7 +420,6 @@ function App() {
                 >
                   Add Exercise
                 </button>
-
               </div>
             )}
 
@@ -517,7 +428,6 @@ function App() {
             ====================== */}
 
             <div className="small-fields">
-
               <label>
                 Sets
 
@@ -556,20 +466,14 @@ function App() {
                   required
                 />
               </label>
-
             </div>
 
             {/* Save Workout */}
 
-            <button
-              type="submit"
-              className="save-workout-button"
-            >
+            <button type="submit" className="save-workout-button">
               Save Workout
             </button>
-
           </form>
-
         </section>
 
         {/* ========================
@@ -577,38 +481,25 @@ function App() {
         ======================== */}
 
         <section className="card pr-card">
+          <span className="section-label">PERSONAL RECORD</span>
 
-          <span className="section-label">
-            PERSONAL RECORD
-          </span>
-
-          <h2>
-            Your latest PR
-          </h2>
+          <h2>Your latest PR</h2>
 
           {latestPR ? (
             <div className="pr-display">
-
               <strong>
-                {latestPR.exerciseId?.name ||
-                  "Exercise"}
+                {latestPR.exerciseId?.name || "Exercise"}
               </strong>
 
               <span className="pr-weight">
                 {latestPR.weight} kg
               </span>
 
-              <span>
-                {latestPR.prType} PR
-              </span>
-
+              <span>{latestPR.prType} PR</span>
             </div>
           ) : (
-            <p>
-              No personal records yet.
-            </p>
+            <p>No personal records yet.</p>
           )}
-
         </section>
 
         {/* ========================
@@ -616,47 +507,31 @@ function App() {
         ======================== */}
 
         <section className="card recent-card">
+          <span className="section-label">RECENT WORKOUT</span>
 
-          <span className="section-label">
-            RECENT WORKOUT
-          </span>
-
-          <h2>
-            Latest activity
-          </h2>
+          <h2>Latest activity</h2>
 
           {latestWorkout ? (
             <div className="recent-workout">
-
               <div>
-
                 <strong>
-                  {latestWorkout.exerciseId?.name ||
-                    "Exercise"}
+                  {latestWorkout.exerciseId?.name || "Exercise"}
                 </strong>
 
                 <span>
-                  {latestWorkout.sets} sets ×{" "}
-                  {latestWorkout.reps} reps
+                  {latestWorkout.sets} sets × {latestWorkout.reps} reps
                 </span>
-
               </div>
 
               <strong className="recent-weight">
                 {latestWorkout.weight} kg
               </strong>
-
             </div>
           ) : (
-            <p>
-              No workouts recorded yet.
-            </p>
+            <p>No workouts recorded yet.</p>
           )}
-
         </section>
-
       </main>
-
     </div>
   );
 }

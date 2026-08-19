@@ -19,7 +19,9 @@ select {
   min-height: 100vh;
 }
 
-/* HEADER */
+/* ==============================
+   HEADER
+   ============================== */
 
 .header {
   background: #17202a;
@@ -47,7 +49,6 @@ select {
   font-size: 40px;
   color: #f8fafc;
 }
-
 
 .header p {
   margin: 0;
@@ -77,7 +78,9 @@ select {
   color: #cbd5e1;
 }
 
-/* DASHBOARD */
+/* ==============================
+   DASHBOARD
+   ============================== */
 
 .dashboard {
   width: min(900px, 92%);
@@ -120,6 +123,15 @@ select {
 
   border: 1px solid #ccd3da;
   border-radius: 6px;
+  background: white;
+  color: #17202a;
+}
+
+.card input:focus,
+.card select:focus {
+  outline: none;
+  border-color: #52606d;
+  box-shadow: 0 0 0 2px rgba(82, 96, 109, 0.12);
 }
 
 .small-fields {
@@ -140,110 +152,26 @@ button {
 
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
 
 button:hover {
   background: #263442;
 }
 
-/* PR */
-
-.pr-display {
-  padding-top: 5px;
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.pr-display strong {
-  display: block;
-  font-size: 18px;
+button:disabled:hover {
+  background: #17202a;
 }
 
-.pr-display span {
-  display: block;
-  margin-top: 5px;
-  color: #667482;
-  font-size: 13px;
-}
+/* ==============================
+   ADD EXERCISE
+   ============================== */
 
-.pr-weight {
-  font-size: 32px !important;
-  font-weight: bold;
-  color: #17202a !important;
-}
-
-/* RECENT WORKOUT */
-
-.recent-workout {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.recent-workout strong {
-  display: block;
-}
-
-.recent-workout span {
-  display: block;
-  margin-top: 5px;
-  color: #667482;
-  font-size: 13px;
-}
-
-.recent-weight {
-  font-size: 20px;
-}
-
-/* ERROR */
-
-.error {
-  width: min(900px, 92%);
-  margin: 20px auto 0;
-  padding: 12px;
-
-  background: #fde8e8;
-  color: #9b1c1c;
-
-  border-radius: 7px;
-}
-
-.loading {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-}
-
-/* MOBILE */
-
-@media (max-width: 700px) {
-  .header {
-    padding: 25px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .stats {
-    width: 100%;
-  }
-
-  .stats div {
-    flex: 1;
-  }
-
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-
-  .log-card {
-    grid-row: auto;
-  }
-}
-
-@media (max-width: 450px) {
-  .small-fields {
-    grid-template-columns: 1fr;
-  }
-}
 .add-exercise-button {
   width: auto;
   margin: -5px 0 18px;
@@ -288,4 +216,220 @@ button:hover {
 
 .save-exercise-button:hover {
   background: #3d4a56;
+}
+
+/* ==============================
+   PR
+   ============================== */
+
+.pr-display {
+  padding-top: 5px;
+}
+
+.pr-display strong {
+  display: block;
+  font-size: 18px;
+}
+
+.pr-display span {
+  display: block;
+  margin-top: 5px;
+  color: #667482;
+  font-size: 13px;
+}
+
+.pr-weight {
+  font-size: 32px !important;
+  font-weight: bold;
+  color: #17202a !important;
+}
+
+/* ==============================
+   RECENT WORKOUT
+   ============================== */
+
+.recent-workout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.recent-workout strong {
+  display: block;
+}
+
+.recent-workout span {
+  display: block;
+  margin-top: 5px;
+  color: #667482;
+  font-size: 13px;
+}
+
+.recent-weight {
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+/* ==============================
+   EMPTY STATES
+   ============================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 5px;
+}
+
+.empty-state strong {
+  font-size: 14px;
+  color: #52606d;
+}
+
+.empty-state span {
+  font-size: 13px;
+  color: #7b8794;
+  line-height: 1.5;
+}
+
+/* ==============================
+   ERROR
+   ============================== */
+
+.error {
+  width: min(900px, 92%);
+  margin: 20px auto 0;
+  padding: 12px;
+
+  background: #fde8e8;
+  color: #9b1c1c;
+
+  border: 1px solid #f8caca;
+  border-radius: 7px;
+
+  font-size: 14px;
+}
+
+/* ==============================
+   SUCCESS
+   ============================== */
+
+.success {
+  width: min(900px, 92%);
+  margin: 20px auto 0;
+  padding: 12px;
+
+  background: #e8f5e9;
+  color: #256029;
+
+  border: 1px solid #c8e6c9;
+  border-radius: 7px;
+
+  font-size: 14px;
+}
+
+/* ==============================
+   LOADING
+   ============================== */
+
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.loading h2 {
+  color: #52606d;
+}
+
+/* ==============================
+   MOBILE
+   ============================== */
+
+@media (max-width: 700px) {
+  .header {
+    padding: 25px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .header h1 {
+    font-size: 34px;
+  }
+
+  .stats {
+    width: 100%;
+  }
+
+  .stats div {
+    flex: 1;
+  }
+
+  .dashboard {
+    width: 92%;
+    grid-template-columns: 1fr;
+    margin: 25px auto;
+  }
+
+  .log-card {
+    grid-row: auto;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .recent-workout {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 450px) {
+  .header {
+    padding: 22px 18px;
+  }
+
+  .header h1 {
+    font-size: 30px;
+  }
+
+  .header p {
+    font-size: 14px;
+  }
+
+  .stats {
+    gap: 8px;
+  }
+
+  .stats div {
+    min-width: 0;
+    padding: 12px 8px;
+  }
+
+  .stats strong {
+    font-size: 20px;
+  }
+
+  .dashboard {
+    width: 94%;
+    margin: 20px auto;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .small-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-workout {
+    flex-direction: column;
+  }
+
+  .recent-weight {
+    font-size: 18px;
+  }
 }
