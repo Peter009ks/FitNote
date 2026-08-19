@@ -1,0 +1,47 @@
+### Create User
+POST http://localhost:5000/api/users
+Content-Type: application/json
+
+{
+  "username": "Peter",
+  "email": "peter@example.com",
+  "fitnessGoal": "Muscle Gain"
+}
+
+
+### Create Exercise
+POST http://localhost:5000/api/exercises
+Content-Type: application/json
+
+{
+  "name": "Bench Press",
+  "muscleGroup": "Chest",
+  "equipment": "Barbell",
+  "difficulty": "Intermediate",
+  "caloriesPerMinute": 8
+}
+
+### Create Workout
+POST http://localhost:5000/api/workouts
+Content-Type: application/json
+
+{
+  "userId": "6a85025f3884741f31936890",
+  "exerciseId": "6a8502c93884741f31936892",
+  "sets": 4,
+  "reps": 8,
+  "weight": 100,
+  "duration": 45,
+  "fatigueLevel": 8,
+  "isPR": true,
+  "prType": "Weight",
+  "notes": "New personal record on bench press",
+  "workoutDate": "2026-08-19"
+}
+
+### Get All Workouts
+GET http://localhost:5000/api/workouts
+
+### Get PR Workouts
+GET http://localhost:5000/api/workouts/stats/prs
+
