@@ -224,8 +224,10 @@ function App() {
       // Close exercise form
       setShowExerciseForm(false);
 
-      // Clear messages
+      // Clear error
       setError("");
+
+      // Show success message
       setSuccess("Exercise added successfully!");
 
       // Automatically hide success message after 3 seconds
@@ -346,14 +348,18 @@ function App() {
               </select>
             </label>
 
-            {/* Add Exercise Toggle */}
+            {/* Add Exercise */}
 
             <button
               type="button"
               className="add-exercise-button"
-              onClick={() => setShowExerciseForm((current) => !current)}
+              onClick={() =>
+                setShowExerciseForm(!showExerciseForm)
+              }
             >
-              {showExerciseForm ? "− Cancel" : "+ Add Exercise"}
+              {showExerciseForm
+                ? "− Cancel"
+                : "+ Add Exercise"}
             </button>
 
             {/* ======================
@@ -411,11 +417,17 @@ function App() {
                     value={exerciseForm.difficulty}
                     onChange={handleExerciseChange}
                   >
-                    <option value="Beginner">Beginner</option>
+                    <option value="Beginner">
+                      Beginner
+                    </option>
+
                     <option value="Intermediate">
                       Intermediate
                     </option>
-                    <option value="Advanced">Advanced</option>
+
+                    <option value="Advanced">
+                      Advanced
+                    </option>
                   </select>
                 </label>
 
@@ -430,8 +442,6 @@ function App() {
                     onChange={handleExerciseChange}
                   />
                 </label>
-
-                {/* Add Exercise */}
 
                 <button
                   type="button"
@@ -490,7 +500,10 @@ function App() {
 
             {/* Save Workout */}
 
-            <button type="submit" className="save-workout-button">
+            <button
+              type="submit"
+              className="save-workout-button"
+            >
               Save Workout
             </button>
           </form>
@@ -501,14 +514,17 @@ function App() {
         ======================== */}
 
         <section className="card pr-card">
-          <span className="section-label">PERSONAL RECORD</span>
+          <span className="section-label">
+            PERSONAL RECORD
+          </span>
 
           <h2>Your latest PR</h2>
 
           {latestPR ? (
             <div className="pr-display">
               <strong>
-                {latestPR.exerciseId?.name || "Exercise"}
+                {latestPR.exerciseId?.name ||
+                  "Exercise"}
               </strong>
 
               <span className="pr-weight">
@@ -527,7 +543,9 @@ function App() {
         ======================== */}
 
         <section className="card recent-card">
-          <span className="section-label">RECENT WORKOUT</span>
+          <span className="section-label">
+            RECENT WORKOUT
+          </span>
 
           <h2>Latest activity</h2>
 
@@ -535,17 +553,68 @@ function App() {
             <div className="recent-workout">
               <div>
                 <strong>
-                  {latestWorkout.exerciseId?.name || "Exercise"}
+                  {latestWorkout.exerciseId?.name ||
+                    "Exercise"}
                 </strong>
 
                 <span>
-                  {latestWorkout.sets} sets × {latestWorkout.reps} reps
+                  {latestWorkout.sets} sets ×{" "}
+                  {latestWorkout.reps} reps
                 </span>
               </div>
 
               <strong className="recent-weight">
                 {latestWorkout.weight} kg
               </strong>
+            </div>
+          ) : (
+            <p>No workouts recorded yet.</p>
+          )}
+        </section>
+
+        {/* ========================
+            WORKOUT HISTORY
+        ======================== */}
+
+        <section className="card history-card">
+          <span className="section-label">
+            WORKOUT HISTORY
+          </span>
+
+          <h2>Recent workouts</h2>
+
+          {workouts.length > 0 ? (
+            <div className="history-list">
+              {workouts.slice(0, 10).map((workout) => (
+                <div
+                  className="history-item"
+                  key={workout._id}
+                >
+                  <div className="history-main">
+                    <strong>
+                      {workout.exerciseId?.name ||
+                        "Exercise"}
+                    </strong>
+
+                    <span>
+                      {workout.sets} sets ×{" "}
+                      {workout.reps} reps
+                    </span>
+                  </div>
+
+                  <div className="history-details">
+                    <strong>
+                      {workout.weight} kg
+                    </strong>
+
+                    <span>
+                      {new Date(
+                        workout.workoutDate
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No workouts recorded yet.</p>
