@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./services/api";
 import "./App.css";
-
-const API_URL = "http://localhost:5000/api";
 
 function App() {
   // ==============================
@@ -57,10 +55,10 @@ function App() {
           usersResponse,
           exercisesResponse,
         ] = await Promise.all([
-          axios.get(`${API_URL}/workouts`),
-          axios.get(`${API_URL}/workouts/stats/prs`),
-          axios.get(`${API_URL}/users`),
-          axios.get(`${API_URL}/exercises`),
+          api.get("/workouts"),
+          api.get("/workouts/stats/prs"),
+          api.get("/users"),
+          api.get("/exercises"),
         ]);
 
         setWorkouts(workoutsResponse.data);
@@ -131,7 +129,7 @@ function App() {
     event.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/workouts`, {
+      const response = await api.post("/workouts", {
         ...workoutForm,
         sets: Number(workoutForm.sets),
         reps: Number(workoutForm.reps),
@@ -191,7 +189,7 @@ function App() {
     event.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/exercises`, {
+      const response = await api.post("/exercises", {
         name: exerciseForm.name,
         muscleGroup: exerciseForm.muscleGroup,
         equipment: exerciseForm.equipment,
