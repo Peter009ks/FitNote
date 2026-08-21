@@ -65,7 +65,9 @@ const updateWorkout = async (req, res) => {
         new: true,
         runValidators: true,
       }
-    );
+    )
+      .populate("userId", "username email")
+      .populate("exerciseId", "name muscleGroup");
 
     if (!updatedWorkout) {
       return res.status(404).json({
@@ -88,7 +90,9 @@ const updateWorkout = async (req, res) => {
 // DELETE workout
 const deleteWorkout = async (req, res) => {
   try {
-    const deletedWorkout = await Workout.findByIdAndDelete(req.params.id);
+    const deletedWorkout = await Workout.findByIdAndDelete(
+      req.params.id
+    );
 
     if (!deletedWorkout) {
       return res.status(404).json({
@@ -112,7 +116,9 @@ const getUserWorkouts = async (req, res) => {
   try {
     const workouts = await Workout.find({
       userId: req.params.userId,
-    }).populate("exerciseId", "name muscleGroup");
+    })
+      .populate("userId", "username email")
+      .populate("exerciseId", "name muscleGroup");
 
     res.status(200).json(workouts);
   } catch (error) {
@@ -149,17 +155,25 @@ const getWorkoutStats = async (req, res) => {
     const totalWorkouts = workouts.length;
 
     const totalVolume = workouts.reduce(
-      (sum, workout) => sum + workout.sets * workout.reps * workout.weight,
+      (sum, workout) =>
+        sum +
+        workout.sets *
+          workout.reps *
+          workout.weight,
       0
     );
 
-    const totalPRs = workouts.filter((workout) => workout.isPR).length;
+    const totalPRs = workouts.filter(
+      (workout) => workout.isPR
+    ).length;
 
     const averageFatigue =
       workouts.length > 0
         ? (
             workouts.reduce(
-              (sum, workout) => sum + (workout.fatigueLevel || 0),
+              (sum, workout) =>
+                sum +
+                (workout.fatigueLevel || 0),
               0
             ) / workouts.length
           ).toFixed(2)

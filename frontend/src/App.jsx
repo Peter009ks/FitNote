@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
 import api from "./services/api";
+import WorkoutForm from "./components/WorkoutForm";
+import WorkoutHistory from "./components/WorkoutHistory";
+import PersonalRecords from "./components/PersonalRecords";
 import "./App.css";
 
 function App() {
-  // ==============================
-  // DATA
-  // ==============================
+  // --------------------------------------------------
+  // DATA STATE
+  // --------------------------------------------------
 
   const [workouts, setWorkouts] = useState([]);
   const [prs, setPrs] = useState([]);
   const [users, setUsers] = useState([]);
   const [exercises, setExercises] = useState([]);
 
+  // --------------------------------------------------
+  // UI STATE
+  // --------------------------------------------------
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ==============================
-  // WORKOUT FORM
-  // ==============================
+  // --------------------------------------------------
+  // CREATE WORKOUT FORM
+  // --------------------------------------------------
 
   const [workoutForm, setWorkoutForm] = useState({
     userId: "",
@@ -26,150 +33,248 @@ function App() {
     sets: 3,
     reps: 10,
     weight: 0,
+    duration: 30,
+    fatigueLevel: 5,
+    isPR: false,
+    prType: "None",
   });
 
-  // ==============================
-  // EXERCISE FORM
-  // ==============================
+  // --------------------------------------------------
+  // EDIT WORKOUT FORM
+  // --------------------------------------------------
 
-  const [showExerciseForm, setShowExerciseForm] = useState(false);
+  const [editingWorkoutId, setEditingWorkoutId] =
+    useState(null);
 
-  const [exerciseForm, setExerciseForm] = useState({
-    name: "",
-    muscleGroup: "",
-    equipment: "",
-    difficulty: "Beginner",
-    caloriesPerMinute: 0,
+  const [editWorkoutForm, setEditWorkoutForm] = useState({
+    exerciseId: "",
+    sets: 3,
+    reps: 10,
+    weight: 0,
+    duration: 30,
   });
 
-  // ==============================
-  // LOAD DATA
-  // ==============================
+  // --------------------------------------------------
+  // LOAD WORKOUTS
+  // --------------------------------------------------
+
+  const loadWorkouts = async () => {
+    try {
+      const response = await api.get("/workouts");
+
+      setWorkouts(response.data);
+    } catch (err) {
+      console.error(
+        "LOAD WORKOUTS ERROR:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load workouts."
+      );
+    }
+  };
+
+  // --------------------------------------------------
+  // LOAD PERSONAL RECORDS
+  // --------------------------------------------------
+
+  const loadPRs = async () => {
+    try {
+      const response = await api.get(
+        "/workouts/stats/prs"
+      );
+
+      setPrs(response.data);
+    } catch (err) {
+      console.error(
+        "LOAD PRS ERROR:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load personal records."
+      );
+    }
+  };
+
+  // --------------------------------------------------
+  // LOAD USERS
+  // --------------------------------------------------
+
+  const loadUsers = async () => {
+    try {
+      const response = await api.get("/users");
+
+      setUsers(response.data);
+    } catch (err) {
+      console.error(
+        "LOAD USERS ERROR:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load users."
+      );
+    }
+  };
+
+  // --------------------------------------------------
+  // LOAD EXERCISES
+  // --------------------------------------------------
+
+  const loadExercises = async () => {
+    try {
+      const response = await api.get(
+        "/exercises"
+      );
+
+      setExercises(response.data);
+    } catch (err) {
+      console.error(
+        "LOAD EXERCISES ERROR:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load exercises."
+      );
+    }
+  };
+
+  // --------------------------------------------------
+  // LOAD ALL DATA
+  // --------------------------------------------------
+
+  const loadData = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      await Promise.all([
+        loadWorkouts(),
+        loadPRs(),
+        loadUsers(),
+        loadExercises(),
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [
-          workoutsResponse,
-          prsResponse,
-          usersResponse,
-          exercisesResponse,
-        ] = await Promise.all([
-          api.get("/workouts"),
-          api.get("/workouts/stats/prs"),
-          api.get("/users"),
-          api.get("/exercises"),
-        ]);
-
-        setWorkouts(workoutsResponse.data);
-        setPrs(prsResponse.data);
-        setUsers(usersResponse.data);
-        setExercises(exercisesResponse.data);
-
-        // Automatically select first user
-        if (usersResponse.data.length > 0) {
-          setWorkoutForm((form) => ({
-            ...form,
-            userId: usersResponse.data[0]._id,
-          }));
-        }
-
-        // Automatically select first exercise
-        if (exercisesResponse.data.length > 0) {
-          setWorkoutForm((form) => ({
-            ...form,
-            exerciseId: exercisesResponse.data[0]._id,
-          }));
-        }
-      } catch (err) {
-        console.error("LOAD DATA ERROR:", err);
-
-        setError(
-          "Unable to connect to FitNote. Make sure the backend is running."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
   }, []);
 
-  // ==============================
-  // WORKOUT FORM CHANGE
-  // ==============================
+  // --------------------------------------------------
+  // CREATE FORM CHANGE
+  // --------------------------------------------------
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = event.target;
 
     setWorkoutForm((form) => ({
       ...form,
-      [name]: value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value,
     }));
   };
 
-  // ==============================
-  // EXERCISE FORM CHANGE
-  // ==============================
-
-  const handleExerciseChange = (event) => {
-    const { name, value } = event.target;
-
-    setExerciseForm((form) => ({
-      ...form,
-      [name]: value,
-    }));
-  };
-
-  // ==============================
+  // --------------------------------------------------
   // CREATE WORKOUT
-  // ==============================
+  // --------------------------------------------------
 
-  const handleSubmit = async (event) => {
+  const handleCreateWorkout = async (
+    event
+  ) => {
     event.preventDefault();
 
-    try {
-      const response = await api.post("/workouts", {
-        ...workoutForm,
-        sets: Number(workoutForm.sets),
-        reps: Number(workoutForm.reps),
-        weight: Number(workoutForm.weight),
+    setError("");
+    setSuccess("");
 
-        // Required/default fields
+    try {
+      const response = await api.post(
+        "/workouts",
+        {
+          userId: workoutForm.userId,
+
+          exerciseId:
+            workoutForm.exerciseId,
+
+          sets: Number(
+            workoutForm.sets
+          ),
+
+          reps: Number(
+            workoutForm.reps
+          ),
+
+          weight: Number(
+            workoutForm.weight
+          ),
+
+          duration: Number(
+            workoutForm.duration
+          ),
+
+          fatigueLevel: Number(
+            workoutForm.fatigueLevel
+          ),
+
+          isPR: workoutForm.isPR,
+
+          prType: workoutForm.isPR
+            ? workoutForm.prType
+            : "None",
+        }
+      );
+
+      const createdWorkout =
+        response.data.workout;
+
+      setWorkouts((currentWorkouts) => [
+        createdWorkout,
+        ...currentWorkouts,
+      ]);
+
+      setWorkoutForm({
+        userId: "",
+        exerciseId: "",
+        sets: 3,
+        reps: 10,
+        weight: 0,
         duration: 30,
         fatigueLevel: 5,
         isPR: false,
         prType: "None",
-        notes: "",
-        workoutDate: new Date().toISOString(),
       });
 
-      console.log("Workout created:", response.data);
+      setSuccess(
+        "Workout created successfully!"
+      );
 
-      const newWorkout = response.data.workout;
+      await loadWorkouts();
+      await loadPRs();
 
-      setWorkouts((current) => [newWorkout, ...current]);
-
-      // Show success message
-      setSuccess("Workout saved successfully!");
-      setError("");
-
-      // Automatically hide success message after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
-
-      // Reset workout fields
-      setWorkoutForm((form) => ({
-        ...form,
-        sets: 3,
-        reps: 10,
-        weight: 0,
-      }));
     } catch (err) {
-      console.error("CREATE WORKOUT ERROR:", err);
-
-      console.error("Backend response:", err.response?.data);
+      console.error(
+        "CREATE WORKOUT ERROR:",
+        err
+      );
 
       setSuccess("");
 
@@ -181,443 +286,312 @@ function App() {
     }
   };
 
-  // ==============================
-  // CREATE EXERCISE
-  // ==============================
+  // --------------------------------------------------
+  // EDIT FORM CHANGE
+  // --------------------------------------------------
 
-  const handleAddExercise = async (event) => {
+  const handleEditChange = (event) => {
+    const {
+      name,
+      value,
+    } = event.target;
+
+    setEditWorkoutForm((form) => ({
+      ...form,
+      [name]: value,
+    }));
+  };
+
+  // --------------------------------------------------
+  // START EDITING WORKOUT
+  // --------------------------------------------------
+
+  const startEditingWorkout = (
+    workout
+  ) => {
+    setEditingWorkoutId(workout._id);
+
+    setEditWorkoutForm({
+      exerciseId:
+        workout.exerciseId?._id ||
+        workout.exerciseId ||
+        "",
+
+      sets: workout.sets,
+
+      reps: workout.reps,
+
+      weight: workout.weight,
+
+      duration:
+        workout.duration || 30,
+    });
+
+    setError("");
+    setSuccess("");
+  };
+
+  // --------------------------------------------------
+  // CANCEL EDITING
+  // --------------------------------------------------
+
+  const cancelEditingWorkout = () => {
+    setEditingWorkoutId(null);
+
+    setEditWorkoutForm({
+      exerciseId: "",
+      sets: 3,
+      reps: 10,
+      weight: 0,
+      duration: 30,
+    });
+
+    setError("");
+  };
+
+  // --------------------------------------------------
+  // UPDATE WORKOUT
+  // --------------------------------------------------
+
+  const handleUpdateWorkout = async (
+    event
+  ) => {
     event.preventDefault();
 
+    setError("");
+    setSuccess("");
+
     try {
-      const response = await api.post("/exercises", {
-        name: exerciseForm.name,
-        muscleGroup: exerciseForm.muscleGroup,
-        equipment: exerciseForm.equipment,
-        difficulty: exerciseForm.difficulty,
-        caloriesPerMinute: Number(exerciseForm.caloriesPerMinute),
+      const response = await api.put(
+        `/workouts/${editingWorkoutId}`,
+        {
+          exerciseId:
+            editWorkoutForm.exerciseId,
+
+          sets: Number(
+            editWorkoutForm.sets
+          ),
+
+          reps: Number(
+            editWorkoutForm.reps
+          ),
+
+          weight: Number(
+            editWorkoutForm.weight
+          ),
+
+          duration: Number(
+            editWorkoutForm.duration
+          ),
+        }
+      );
+
+      const updatedWorkout =
+        response.data.workout;
+
+      setWorkouts((currentWorkouts) =>
+        currentWorkouts.map(
+          (workout) =>
+            workout._id ===
+            updatedWorkout._id
+              ? updatedWorkout
+              : workout
+        )
+      );
+
+      setEditingWorkoutId(null);
+
+      setEditWorkoutForm({
+        exerciseId: "",
+        sets: 3,
+        reps: 10,
+        weight: 0,
+        duration: 30,
       });
 
-      console.log("Exercise created:", response.data);
+      setSuccess(
+        "Workout updated successfully!"
+      );
 
-      const newExercise = response.data.exercise;
+      await loadWorkouts();
+      await loadPRs();
 
-      // Add new exercise to the list
-      setExercises((current) => [...current, newExercise]);
-
-      // Automatically select the new exercise
-      setWorkoutForm((form) => ({
-        ...form,
-        exerciseId: newExercise._id,
-      }));
-
-      // Reset exercise form
-      setExerciseForm({
-        name: "",
-        muscleGroup: "",
-        equipment: "",
-        difficulty: "Beginner",
-        caloriesPerMinute: 0,
-      });
-
-      // Close exercise form
-      setShowExerciseForm(false);
-
-      // Clear error
-      setError("");
-
-      // Show success message
-      setSuccess("Exercise added successfully!");
-
-      // Automatically hide success message after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
     } catch (err) {
-      console.error("CREATE EXERCISE ERROR:", err);
-
-      console.error("Backend response:", err.response?.data);
+      console.error(
+        "UPDATE WORKOUT ERROR:",
+        err
+      );
 
       setSuccess("");
 
       setError(
         err.response?.data?.error ||
           err.response?.data?.message ||
-          "Failed to create exercise."
+          "Failed to update workout."
       );
     }
   };
 
-  // ==============================
-  // LOADING
-  // ==============================
+  // --------------------------------------------------
+  // DELETE WORKOUT
+  // --------------------------------------------------
+
+  const handleDeleteWorkout = async (
+    workout
+  ) => {
+    const exerciseName =
+      workout.exerciseId?.name ||
+      "this workout";
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the ${exerciseName} workout? This action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try {
+      await api.delete(
+        `/workouts/${workout._id}`
+      );
+
+      setWorkouts((currentWorkouts) =>
+        currentWorkouts.filter(
+          (currentWorkout) =>
+            currentWorkout._id !==
+            workout._id
+        )
+      );
+
+      setPrs((currentPRs) =>
+        currentPRs.filter(
+          (pr) =>
+            pr._id !== workout._id
+        )
+      );
+
+      setSuccess(
+        "Workout deleted successfully!"
+      );
+
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+    } catch (err) {
+      console.error(
+        "DELETE WORKOUT ERROR:",
+        err
+      );
+
+      setSuccess("");
+
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Failed to delete workout."
+      );
+    }
+  };
+
+  // --------------------------------------------------
+  // LOADING SCREEN
+  // --------------------------------------------------
 
   if (loading) {
     return (
-      <div className="loading">
-        <h2>Loading FitNote...</h2>
+      <div className="app">
+        <div className="loading">
+          Loading FitNote...
+        </div>
       </div>
     );
   }
 
-  // ==============================
-  // IMPORTANT DATA
-  // ==============================
-
-  const latestWorkout = workouts[0];
-  const latestPR = prs[0];
-
-  // ==============================
-  // UI
-  // ==============================
+  // --------------------------------------------------
+  // MAIN UI
+  // --------------------------------------------------
 
   return (
     <div className="app">
-      {/* ==========================
-          HEADER
-      ========================== */}
 
-      <header className="header">
+      {/* HEADER */}
+      <header className="app-header">
         <div>
-          <span className="eyebrow">FITNESS TRACKER</span>
-
           <h1>FitNote</h1>
 
-          <p>Your fitness progress, simplified.</p>
-        </div>
-
-        <div className="stats">
-          <div>
-            <strong>{workouts.length}</strong>
-            <span>Workouts</span>
-          </div>
-
-          <div>
-            <strong>{prs.length}</strong>
-            <span>PRs</span>
-          </div>
+          <p>
+            Track your workouts, progress
+            and personal records.
+          </p>
         </div>
       </header>
 
-      {/* ==========================
-          ERROR MESSAGE
-      ========================== */}
-
-      {error && <div className="error">{error}</div>}
-
-      {/* ==========================
-          SUCCESS MESSAGE
-      ========================== */}
-
-      {success && <div className="success">{success}</div>}
-
-      {/* ==========================
-          DASHBOARD
-      ========================== */}
-
       <main className="dashboard">
-        {/* ========================
-            LOG WORKOUT
-        ======================== */}
 
-        <section className="card log-card">
-          <span className="section-label">LOG WORKOUT</span>
+        {/* ERROR MESSAGE */}
+        {error && (
+          <div className="message error-message">
+            {error}
+          </div>
+        )}
 
-          <h2>Record your workout</h2>
+        {/* SUCCESS MESSAGE */}
+        {success && (
+          <div className="message success-message">
+            {success}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            {/* Exercise selector */}
+        {/* ADD WORKOUT */}
+        <WorkoutForm
+          workoutForm={workoutForm}
+          users={users}
+          exercises={exercises}
+          handleChange={handleChange}
+          handleCreateWorkout={
+            handleCreateWorkout
+          }
+        />
 
-            <label>
-              Exercise
+        {/* WORKOUT HISTORY */}
+        <WorkoutHistory
+          workouts={workouts}
+          exercises={exercises}
+          editingWorkoutId={
+            editingWorkoutId
+          }
+          editWorkoutForm={
+            editWorkoutForm
+          }
+          handleEditChange={
+            handleEditChange
+          }
+          startEditingWorkout={
+            startEditingWorkout
+          }
+          cancelEditingWorkout={
+            cancelEditingWorkout
+          }
+          handleUpdateWorkout={
+            handleUpdateWorkout
+          }
+          handleDeleteWorkout={
+            handleDeleteWorkout
+          }
+        />
 
-              <select
-                name="exerciseId"
-                value={workoutForm.exerciseId}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select exercise</option>
+        {/* PERSONAL RECORDS */}
+        <PersonalRecords
+          prs={prs}
+        />
 
-                {exercises.map((exercise) => (
-                  <option key={exercise._id} value={exercise._id}>
-                    {exercise.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {/* Add Exercise */}
-
-            <button
-              type="button"
-              className="add-exercise-button"
-              onClick={() =>
-                setShowExerciseForm(!showExerciseForm)
-              }
-            >
-              {showExerciseForm
-                ? "− Cancel"
-                : "+ Add Exercise"}
-            </button>
-
-            {/* ======================
-                NEW EXERCISE FORM
-            ====================== */}
-
-            {showExerciseForm && (
-              <div className="exercise-form">
-                <h3>Add New Exercise</h3>
-
-                <label>
-                  Exercise Name
-
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="e.g. Deadlift"
-                    value={exerciseForm.name}
-                    onChange={handleExerciseChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Muscle Group
-
-                  <input
-                    type="text"
-                    name="muscleGroup"
-                    placeholder="e.g. Legs, Back"
-                    value={exerciseForm.muscleGroup}
-                    onChange={handleExerciseChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Equipment
-
-                  <input
-                    type="text"
-                    name="equipment"
-                    placeholder="e.g. Barbell"
-                    value={exerciseForm.equipment}
-                    onChange={handleExerciseChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Difficulty
-
-                  <select
-                    name="difficulty"
-                    value={exerciseForm.difficulty}
-                    onChange={handleExerciseChange}
-                  >
-                    <option value="Beginner">
-                      Beginner
-                    </option>
-
-                    <option value="Intermediate">
-                      Intermediate
-                    </option>
-
-                    <option value="Advanced">
-                      Advanced
-                    </option>
-                  </select>
-                </label>
-
-                <label>
-                  Calories / Minute
-
-                  <input
-                    type="number"
-                    name="caloriesPerMinute"
-                    min="0"
-                    value={exerciseForm.caloriesPerMinute}
-                    onChange={handleExerciseChange}
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  className="save-exercise-button"
-                  onClick={handleAddExercise}
-                >
-                  Add Exercise
-                </button>
-              </div>
-            )}
-
-            {/* ======================
-                WORKOUT FIELDS
-            ====================== */}
-
-            <div className="small-fields">
-              <label>
-                Sets
-
-                <input
-                  type="number"
-                  name="sets"
-                  min="1"
-                  value={workoutForm.sets}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Reps
-
-                <input
-                  type="number"
-                  name="reps"
-                  min="1"
-                  value={workoutForm.reps}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Weight (kg)
-
-                <input
-                  type="number"
-                  name="weight"
-                  min="0"
-                  value={workoutForm.weight}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-            </div>
-
-            {/* Save Workout */}
-
-            <button
-              type="submit"
-              className="save-workout-button"
-            >
-              Save Workout
-            </button>
-          </form>
-        </section>
-
-        {/* ========================
-            PERSONAL RECORD
-        ======================== */}
-
-        <section className="card pr-card">
-          <span className="section-label">
-            PERSONAL RECORD
-          </span>
-
-          <h2>Your latest PR</h2>
-
-          {latestPR ? (
-            <div className="pr-display">
-              <strong>
-                {latestPR.exerciseId?.name ||
-                  "Exercise"}
-              </strong>
-
-              <span className="pr-weight">
-                {latestPR.weight} kg
-              </span>
-
-              <span>{latestPR.prType} PR</span>
-            </div>
-          ) : (
-            <p>No personal records yet.</p>
-          )}
-        </section>
-
-        {/* ========================
-            RECENT WORKOUT
-        ======================== */}
-
-        <section className="card recent-card">
-          <span className="section-label">
-            RECENT WORKOUT
-          </span>
-
-          <h2>Latest activity</h2>
-
-          {latestWorkout ? (
-            <div className="recent-workout">
-              <div>
-                <strong>
-                  {latestWorkout.exerciseId?.name ||
-                    "Exercise"}
-                </strong>
-
-                <span>
-                  {latestWorkout.sets} sets ×{" "}
-                  {latestWorkout.reps} reps
-                </span>
-              </div>
-
-              <strong className="recent-weight">
-                {latestWorkout.weight} kg
-              </strong>
-            </div>
-          ) : (
-            <p>No workouts recorded yet.</p>
-          )}
-        </section>
-
-        {/* ========================
-            WORKOUT HISTORY
-        ======================== */}
-
-        <section className="card history-card">
-          <span className="section-label">
-            WORKOUT HISTORY
-          </span>
-
-          <h2>Recent workouts</h2>
-
-          {workouts.length > 0 ? (
-            <div className="history-list">
-              {workouts.slice(0, 10).map((workout) => (
-                <div
-                  className="history-item"
-                  key={workout._id}
-                >
-                  <div className="history-main">
-                    <strong>
-                      {workout.exerciseId?.name ||
-                        "Exercise"}
-                    </strong>
-
-                    <span>
-                      {workout.sets} sets ×{" "}
-                      {workout.reps} reps
-                    </span>
-                  </div>
-
-                  <div className="history-details">
-                    <strong>
-                      {workout.weight} kg
-                    </strong>
-
-                    <span>
-                      {new Date(
-                        workout.workoutDate
-                      ).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No workouts recorded yet.</p>
-          )}
-        </section>
       </main>
     </div>
   );
