@@ -234,37 +234,59 @@ The seed script creates:
 ---
 
 ## Project Structure
-
-```text
 FitNote/
+│
 ├── backend/
 │   ├── controllers/
+│   │   ├── exerciseController.js
+│   │   ├── userController.js
+│   │   └── workoutController.js
+│   │
 │   ├── models/
+│   │   ├── exercise.js
+│   │   ├── user.js
+│   │   └── workout.js
+│   │
 │   ├── routes/
+│   │   ├── exercises.js
+│   │   ├── users.js
+│   │   └── workouts.js
+│   │
 │   ├── seed/
+│   │   └── seed.js
+│   │
 │   ├── .env
+│   ├── api-test.http
 │   ├── package.json
 │   └── server.js
 │
 ├── frontend/
+│   ├── public/
+│   │
 │   ├── src/
+│   │   ├── assets/
+│   │   │
 │   │   ├── components/
+│   │   │   ├── PersonalRecords.jsx
 │   │   │   ├── WorkoutForm.jsx
-│   │   │   ├── WorkoutHistory.jsx
-│   │   │   └── PersonalRecords.jsx
+│   │   │   └── WorkoutHistory.jsx
+│   │   │
 │   │   ├── services/
 │   │   │   └── api.js
-│   │   ├── App.jsx
+│   │   │
 │   │   ├── App.css
+│   │   ├── App.jsx
 │   │   └── main.jsx
+│   │
 │   ├── package.json
-│   └── vite.config.js
+│   ├── vite.config.js
+│   └── index.html
 │
+├── .gitignore
+├── LICENSE
 ├── package.json
+├── package-lock.json
 └── README.md
-```
-
----
 
 ## License
 
