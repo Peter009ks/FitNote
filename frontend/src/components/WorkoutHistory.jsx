@@ -8,9 +8,13 @@ function WorkoutHistory({
   cancelEditingWorkout,
   handleUpdateWorkout,
   handleDeleteWorkout,
+  search,
+  setSearch,
+  exerciseFilter,
+  setExerciseFilter,
 }) {
   return (
-    <section className="card">
+    <section className="card history-card">
       <div className="section-header">
         <div>
           <h2>Workout History</h2>
@@ -21,6 +25,45 @@ function WorkoutHistory({
         </div>
       </div>
 
+      {/* ==============================
+          SEARCH + FILTER
+      ============================== */}
+
+      <div className="workout-filters">
+        <input
+          type="text"
+          placeholder="Search workouts..."
+          value={search}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
+        />
+
+        <select
+          value={exerciseFilter}
+          onChange={(event) =>
+            setExerciseFilter(event.target.value)
+          }
+        >
+          <option value="">
+            All exercises
+          </option>
+
+          {exercises.map((exercise) => (
+            <option
+              key={exercise._id}
+              value={exercise._id}
+            >
+              {exercise.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* ==============================
+          WORKOUT LIST
+      ============================== */}
+
       {workouts.length > 0 ? (
         <div className="history-list">
           {workouts.slice(0, 10).map((workout) => (
@@ -28,7 +71,10 @@ function WorkoutHistory({
               className="history-item"
               key={workout._id}
             >
-              {/* EDIT MODE */}
+              {/* ==============================
+                  EDIT MODE
+              ============================== */}
+
               {editingWorkoutId === workout._id ? (
                 <form
                   className="edit-workout-form"
@@ -37,15 +83,20 @@ function WorkoutHistory({
                   <h3>Edit Workout</h3>
 
                   {/* EXERCISE */}
+
                   <div className="form-group">
-                    <label htmlFor={`exercise-${workout._id}`}>
+                    <label
+                      htmlFor={`exercise-${workout._id}`}
+                    >
                       Exercise
                     </label>
 
                     <select
                       id={`exercise-${workout._id}`}
                       name="exerciseId"
-                      value={editWorkoutForm.exerciseId}
+                      value={
+                        editWorkoutForm.exerciseId
+                      }
                       onChange={handleEditChange}
                       required
                     >
@@ -65,8 +116,10 @@ function WorkoutHistory({
                   </div>
 
                   {/* SETS / REPS / WEIGHT / DURATION */}
+
                   <div className="form-row">
                     {/* SETS */}
+
                     <div className="form-group">
                       <label
                         htmlFor={`sets-${workout._id}`}
@@ -86,6 +139,7 @@ function WorkoutHistory({
                     </div>
 
                     {/* REPS */}
+
                     <div className="form-group">
                       <label
                         htmlFor={`reps-${workout._id}`}
@@ -105,6 +159,7 @@ function WorkoutHistory({
                     </div>
 
                     {/* WEIGHT */}
+
                     <div className="form-group">
                       <label
                         htmlFor={`weight-${workout._id}`}
@@ -117,13 +172,16 @@ function WorkoutHistory({
                         type="number"
                         name="weight"
                         min="0"
-                        value={editWorkoutForm.weight}
+                        value={
+                          editWorkoutForm.weight
+                        }
                         onChange={handleEditChange}
                         required
                       />
                     </div>
 
                     {/* DURATION */}
+
                     <div className="form-group">
                       <label
                         htmlFor={`duration-${workout._id}`}
@@ -136,7 +194,9 @@ function WorkoutHistory({
                         type="number"
                         name="duration"
                         min="1"
-                        value={editWorkoutForm.duration}
+                        value={
+                          editWorkoutForm.duration
+                        }
                         onChange={handleEditChange}
                         required
                       />
@@ -144,6 +204,7 @@ function WorkoutHistory({
                   </div>
 
                   {/* EDIT BUTTONS */}
+
                   <div className="edit-actions">
                     <button
                       type="submit"
@@ -155,14 +216,19 @@ function WorkoutHistory({
                     <button
                       type="button"
                       className="cancel-edit-button"
-                      onClick={cancelEditingWorkout}
+                      onClick={
+                        cancelEditingWorkout
+                      }
                     >
                       Cancel
                     </button>
                   </div>
                 </form>
               ) : (
-                /* NORMAL WORKOUT VIEW */
+                /* ==============================
+                   NORMAL WORKOUT VIEW
+                ============================== */
+
                 <>
                   <div className="history-main">
                     <strong>
@@ -191,6 +257,7 @@ function WorkoutHistory({
                   </div>
 
                   {/* ACTION BUTTONS */}
+
                   <div className="history-actions">
                     <button
                       type="button"
@@ -218,7 +285,30 @@ function WorkoutHistory({
           ))}
         </div>
       ) : (
-        <p>No workouts recorded yet.</p>
+        <div className="empty-state">
+          {search || exerciseFilter ? (
+            <>
+              <strong>
+                No workouts found.
+              </strong>
+
+              <span>
+                Try changing your search or
+                exercise filter.
+              </span>
+            </>
+          ) : (
+            <>
+              <strong>
+                No workouts recorded yet.
+              </strong>
+
+              <span>
+                Add your first workout above.
+              </span>
+            </>
+          )}
+        </div>
       )}
     </section>
   );

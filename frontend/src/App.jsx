@@ -6,26 +6,41 @@ import PersonalRecords from "./components/PersonalRecords";
 import "./App.css";
 
 function App() {
-  // --------------------------------------------------
+  // ==================================================
   // DATA STATE
-  // --------------------------------------------------
+  // ==================================================
 
   const [workouts, setWorkouts] = useState([]);
   const [prs, setPrs] = useState([]);
   const [users, setUsers] = useState([]);
   const [exercises, setExercises] = useState([]);
 
-  // --------------------------------------------------
+  // ==================================================
   // UI STATE
-  // --------------------------------------------------
+  // ==================================================
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  // --------------------------------------------------
+  // Workout search + filter
+  const [workoutSearch, setWorkoutSearch] = useState("");
+  const [exerciseFilter, setExerciseFilter] = useState("");
+
+  // ==================================================
+  // CREATE USER FORM
+  // ==================================================
+
+  const [userForm, setUserForm] = useState({
+    username: "",
+    email: "",
+    fitnessGoal: "Strength",
+  });
+
+  // ==================================================
   // CREATE WORKOUT FORM
-  // --------------------------------------------------
+  // ==================================================
 
   const [workoutForm, setWorkoutForm] = useState({
     userId: "",
@@ -39,12 +54,11 @@ function App() {
     prType: "None",
   });
 
-  // --------------------------------------------------
+  // ==================================================
   // EDIT WORKOUT FORM
-  // --------------------------------------------------
+  // ==================================================
 
-  const [editingWorkoutId, setEditingWorkoutId] =
-    useState(null);
+  const [editingWorkoutId, setEditingWorkoutId] = useState(null);
 
   const [editWorkoutForm, setEditWorkoutForm] = useState({
     exerciseId: "",
@@ -54,9 +68,52 @@ function App() {
     duration: 30,
   });
 
-  // --------------------------------------------------
+  // ==================================================
+  // CLEAR ERRORS
+  // ==================================================
+
+  const clearErrors = () => {
+    setError("");
+    setValidationErrors({});
+  };
+
+  // ==================================================
+  // HANDLE API ERROR
+  // ==================================================
+
+  const handleApiError = (err, fallbackMessage) => {
+    console.error(err);
+
+    setSuccess("");
+
+    const responseData = err.response?.data;
+
+    if (
+      responseData?.errors &&
+      typeof responseData.errors === "object"
+    ) {
+      setError(
+        responseData.message ||
+          "Please correct the following errors."
+      );
+
+      setValidationErrors(responseData.errors);
+
+      return;
+    }
+
+    setValidationErrors({});
+
+    setError(
+      responseData?.message ||
+        responseData?.error ||
+        fallbackMessage
+    );
+  };
+
+  // ==================================================
   // LOAD WORKOUTS
-  // --------------------------------------------------
+  // ==================================================
 
   const loadWorkouts = async () => {
     try {
@@ -64,21 +121,16 @@ function App() {
 
       setWorkouts(response.data);
     } catch (err) {
-      console.error(
-        "LOAD WORKOUTS ERROR:",
-        err
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load workouts."
+      handleApiError(
+        err,
+        "Failed to load workouts."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // LOAD PERSONAL RECORDS
-  // --------------------------------------------------
+  // ==================================================
 
   const loadPRs = async () => {
     try {
@@ -88,21 +140,16 @@ function App() {
 
       setPrs(response.data);
     } catch (err) {
-      console.error(
-        "LOAD PRS ERROR:",
-        err
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load personal records."
+      handleApiError(
+        err,
+        "Failed to load personal records."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // LOAD USERS
-  // --------------------------------------------------
+  // ==================================================
 
   const loadUsers = async () => {
     try {
@@ -110,49 +157,37 @@ function App() {
 
       setUsers(response.data);
     } catch (err) {
-      console.error(
-        "LOAD USERS ERROR:",
-        err
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load users."
+      handleApiError(
+        err,
+        "Failed to load users."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // LOAD EXERCISES
-  // --------------------------------------------------
+  // ==================================================
 
   const loadExercises = async () => {
     try {
-      const response = await api.get(
-        "/exercises"
-      );
+      const response = await api.get("/exercises");
 
       setExercises(response.data);
     } catch (err) {
-      console.error(
-        "LOAD EXERCISES ERROR:",
-        err
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load exercises."
+      handleApiError(
+        err,
+        "Failed to load exercises."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // LOAD ALL DATA
-  // --------------------------------------------------
+  // ==================================================
 
   const loadData = async () => {
     setLoading(true);
-    setError("");
+    clearErrors();
 
     try {
       await Promise.all([
@@ -170,9 +205,107 @@ function App() {
     loadData();
   }, []);
 
-  // --------------------------------------------------
-  // CREATE FORM CHANGE
-  // --------------------------------------------------
+  // ==================================================
+  // FILTER WORKOUTS
+  // ==================================================
+
+  const filteredWorkouts = workouts.filter(
+    (workout) => {
+      const exerciseName =
+        workout.exerciseId?.name || "";
+
+      const matchesSearch =
+        exerciseName
+          .toLowerCase()
+          .includes(
+            workoutSearch.toLowerCase()
+          );
+
+      const workoutExerciseId =
+        workout.exerciseId?._id ||
+        workout.exerciseId ||
+        "";
+
+      const matchesExercise =
+        !exerciseFilter ||
+        workoutExerciseId === exerciseFilter;
+
+      return (
+        matchesSearch &&
+        matchesExercise
+      );
+    }
+  );
+
+  // ==================================================
+  // CREATE USER FORM CHANGE
+  // ==================================================
+
+  const handleUserChange = (event) => {
+    const { name, value } = event.target;
+
+    clearErrors();
+
+    setUserForm((form) => ({
+      ...form,
+      [name]: value,
+    }));
+  };
+
+  // ==================================================
+  // CREATE USER
+  // ==================================================
+
+  const handleCreateUser = async (event) => {
+    event.preventDefault();
+
+    clearErrors();
+
+    try {
+      const response = await api.post("/users", {
+        username: userForm.username.trim(),
+        email: userForm.email.trim(),
+        fitnessGoal: userForm.fitnessGoal,
+      });
+
+      const createdUser = response.data.user;
+
+      setUsers((currentUsers) => [
+        ...currentUsers,
+        createdUser,
+      ]);
+
+      setUserForm({
+        username: "",
+        email: "",
+        fitnessGoal: "Strength",
+      });
+
+      setWorkoutForm((form) => ({
+        ...form,
+        userId: createdUser._id,
+      }));
+
+      setSuccess(
+        "User created successfully!"
+      );
+
+      await loadUsers();
+
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+    } catch (err) {
+      handleApiError(
+        err,
+        "Failed to create user."
+      );
+    }
+  };
+
+  // ==================================================
+  // CREATE WORKOUT FORM CHANGE
+  // ==================================================
 
   const handleChange = (event) => {
     const {
@@ -181,6 +314,8 @@ function App() {
       type,
       checked,
     } = event.target;
+
+    clearErrors();
 
     setWorkoutForm((form) => ({
       ...form,
@@ -191,17 +326,14 @@ function App() {
     }));
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // CREATE WORKOUT
-  // --------------------------------------------------
+  // ==================================================
 
-  const handleCreateWorkout = async (
-    event
-  ) => {
+  const handleCreateWorkout = async (event) => {
     event.preventDefault();
 
-    setError("");
-    setSuccess("");
+    clearErrors();
 
     try {
       const response = await api.post(
@@ -271,24 +403,16 @@ function App() {
         setSuccess("");
       }, 3000);
     } catch (err) {
-      console.error(
-        "CREATE WORKOUT ERROR:",
-        err
-      );
-
-      setSuccess("");
-
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Failed to create workout."
+      handleApiError(
+        err,
+        "Failed to create workout."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // EDIT FORM CHANGE
-  // --------------------------------------------------
+  // ==================================================
 
   const handleEditChange = (event) => {
     const {
@@ -296,19 +420,21 @@ function App() {
       value,
     } = event.target;
 
+    clearErrors();
+
     setEditWorkoutForm((form) => ({
       ...form,
       [name]: value,
     }));
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // START EDITING WORKOUT
-  // --------------------------------------------------
+  // ==================================================
 
-  const startEditingWorkout = (
-    workout
-  ) => {
+  const startEditingWorkout = (workout) => {
+    clearErrors();
+
     setEditingWorkoutId(workout._id);
 
     setEditWorkoutForm({
@@ -326,16 +452,15 @@ function App() {
       duration:
         workout.duration || 30,
     });
-
-    setError("");
-    setSuccess("");
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // CANCEL EDITING
-  // --------------------------------------------------
+  // ==================================================
 
   const cancelEditingWorkout = () => {
+    clearErrors();
+
     setEditingWorkoutId(null);
 
     setEditWorkoutForm({
@@ -345,21 +470,16 @@ function App() {
       weight: 0,
       duration: 30,
     });
-
-    setError("");
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // UPDATE WORKOUT
-  // --------------------------------------------------
+  // ==================================================
 
-  const handleUpdateWorkout = async (
-    event
-  ) => {
+  const handleUpdateWorkout = async (event) => {
     event.preventDefault();
 
-    setError("");
-    setSuccess("");
+    clearErrors();
 
     try {
       const response = await api.put(
@@ -420,28 +540,18 @@ function App() {
         setSuccess("");
       }, 3000);
     } catch (err) {
-      console.error(
-        "UPDATE WORKOUT ERROR:",
-        err
-      );
-
-      setSuccess("");
-
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Failed to update workout."
+      handleApiError(
+        err,
+        "Failed to update workout."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // DELETE WORKOUT
-  // --------------------------------------------------
+  // ==================================================
 
-  const handleDeleteWorkout = async (
-    workout
-  ) => {
+  const handleDeleteWorkout = async (workout) => {
     const exerciseName =
       workout.exerciseId?.name ||
       "this workout";
@@ -454,8 +564,7 @@ function App() {
       return;
     }
 
-    setError("");
-    setSuccess("");
+    clearErrors();
 
     try {
       await api.delete(
@@ -485,24 +594,16 @@ function App() {
         setSuccess("");
       }, 3000);
     } catch (err) {
-      console.error(
-        "DELETE WORKOUT ERROR:",
-        err
-      );
-
-      setSuccess("");
-
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Failed to delete workout."
+      handleApiError(
+        err,
+        "Failed to delete workout."
       );
     }
   };
 
-  // --------------------------------------------------
+  // ==================================================
   // LOADING SCREEN
-  // --------------------------------------------------
+  // ==================================================
 
   if (loading) {
     return (
@@ -514,14 +615,17 @@ function App() {
     );
   }
 
-  // --------------------------------------------------
+  // ==================================================
   // MAIN UI
-  // --------------------------------------------------
+  // ==================================================
 
   return (
     <div className="app">
 
-      {/* HEADER */}
+      {/* ==========================================
+          HEADER
+      ========================================== */}
+
       <header className="app-header">
         <div>
           <h1>FitNote</h1>
@@ -535,21 +639,129 @@ function App() {
 
       <main className="dashboard">
 
-        {/* ERROR MESSAGE */}
+        {/* ==========================================
+            ERROR MESSAGE
+        ========================================== */}
+
         {error && (
           <div className="message error-message">
-            {error}
+            <strong>{error}</strong>
+
+            {Object.keys(
+              validationErrors
+            ).length > 0 && (
+              <ul>
+                {Object.entries(
+                  validationErrors
+                ).map(
+                  ([
+                    field,
+                    message,
+                  ]) => (
+                    <li key={field}>
+                      <strong>
+                        {field}:
+                      </strong>{" "}
+                      {message}
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
           </div>
         )}
 
-        {/* SUCCESS MESSAGE */}
+        {/* ==========================================
+            SUCCESS MESSAGE
+        ========================================== */}
+
         {success && (
           <div className="message success-message">
             {success}
           </div>
         )}
 
-        {/* ADD WORKOUT */}
+        {/* ==========================================
+            CREATE USER
+        ========================================== */}
+
+        <section className="card create-user-card">
+          <h2>Add User</h2>
+
+          <p>
+            Create a new user for FitNote.
+          </p>
+
+          <form
+            onSubmit={handleCreateUser}
+          >
+            <label htmlFor="username">
+              Username
+            </label>
+
+            <input
+              id="username"
+              type="text"
+              name="username"
+              value={userForm.username}
+              onChange={handleUserChange}
+              placeholder="Enter username"
+              minLength={3}
+              maxLength={20}
+              required
+            />
+
+            <label htmlFor="email">
+              Email
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={userForm.email}
+              onChange={handleUserChange}
+              placeholder="Enter email"
+              required
+            />
+
+            <label htmlFor="fitnessGoal">
+              Fitness Goal
+            </label>
+
+            <select
+              id="fitnessGoal"
+              name="fitnessGoal"
+              value={userForm.fitnessGoal}
+              onChange={handleUserChange}
+            >
+              <option value="Strength">
+                Strength
+              </option>
+
+              <option value="Muscle Gain">
+                Muscle Gain
+              </option>
+
+              <option value="Weight Loss">
+                Weight Loss
+              </option>
+
+              <option value="Endurance">
+                Endurance
+              </option>
+            </select>
+
+            <button type="submit">
+              Create User
+            </button>
+          </form>
+        </section>
+
+        {/* ==========================================
+            ADD WORKOUT
+        ========================================== */}
+
         <WorkoutForm
           workoutForm={workoutForm}
           users={users}
@@ -560,9 +772,12 @@ function App() {
           }
         />
 
-        {/* WORKOUT HISTORY */}
+        {/* ==========================================
+            WORKOUT HISTORY
+        ========================================== */}
+
         <WorkoutHistory
-          workouts={workouts}
+          workouts={filteredWorkouts}
           exercises={exercises}
           editingWorkoutId={
             editingWorkoutId
@@ -585,9 +800,18 @@ function App() {
           handleDeleteWorkout={
             handleDeleteWorkout
           }
+          search={workoutSearch}
+          setSearch={setWorkoutSearch}
+          exerciseFilter={exerciseFilter}
+          setExerciseFilter={
+            setExerciseFilter
+          }
         />
 
-        {/* PERSONAL RECORDS */}
+        {/* ==========================================
+            PERSONAL RECORDS
+        ========================================== */}
+
         <PersonalRecords
           prs={prs}
         />

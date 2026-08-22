@@ -2,9 +2,9 @@ require("dotenv").config();
 
 const mongoose = require("mongoose");
 
-const User = require("../models/User");
-const Exercise = require("../models/Exercise");
-const Workout = require("../models/Workout");
+const User = require("../models/user");
+const Exercise = require("../models/exercise");
+const Workout = require("../models/workout");
 
 mongoose.connect(process.env.MONGO_URI);
 
@@ -153,9 +153,14 @@ const seedDatabase = async () => {
 
     console.log("Database seeded successfully!");
 
-    process.exit();
+    await mongoose.connection.close();
+
+    process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.error("Database seeding failed:", error);
+
+    await mongoose.connection.close();
+
     process.exit(1);
   }
 };

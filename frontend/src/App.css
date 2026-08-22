@@ -123,6 +123,7 @@ select {
 
   border: 1px solid #ccd3da;
   border-radius: 6px;
+
   background: white;
   color: #17202a;
 }
@@ -226,32 +227,6 @@ button:disabled:hover {
 }
 
 /* ==============================
-   PERSONAL RECORD
-============================== */
-
-.pr-display {
-  padding-top: 5px;
-}
-
-.pr-display strong {
-  display: block;
-  font-size: 18px;
-}
-
-.pr-display span {
-  display: block;
-  margin-top: 5px;
-  color: #667482;
-  font-size: 13px;
-}
-
-.pr-weight {
-  font-size: 32px !important;
-  font-weight: bold;
-  color: #17202a !important;
-}
-
-/* ==============================
    RECENT WORKOUT
 ============================== */
 
@@ -330,6 +305,130 @@ button:disabled:hover {
 }
 
 /* ==============================
+   HISTORY ACTIONS
+============================== */
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.edit-button,
+.delete-button,
+.cancel-edit-button {
+  width: auto;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.edit-button {
+  background: #e8f0ff;
+  color: #2457a6;
+}
+
+.delete-button {
+  background: #ffe8e8;
+  color: #b42318;
+}
+
+.cancel-edit-button {
+  background: #eeeeee;
+  color: #333333;
+}
+
+.edit-button:hover,
+.delete-button:hover,
+.cancel-edit-button:hover {
+  opacity: 0.85;
+}
+
+/* ==============================
+   EDIT WORKOUT
+============================== */
+
+.edit-workout-form {
+  width: 100%;
+}
+
+.edit-workout-form h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ==============================
+   PERSONAL RECORDS
+============================== */
+
+.personal-records h2 {
+  margin-bottom: 6px;
+}
+
+.personal-records > p:first-of-type {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.pr-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pr-row:last-child {
+  border-bottom: none;
+}
+
+.pr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pr-info strong {
+  font-size: 14px;
+  color: #17202a;
+}
+
+.pr-info span {
+  font-size: 11px;
+  color: #7b8794;
+}
+
+.pr-number {
+  font-size: 16px;
+  font-weight: bold;
+  color: #17202a;
+  white-space: nowrap;
+}
+
+.no-records {
+  margin: 8px 0 0;
+  color: #7b8794;
+  font-size: 13px;
+}
+
+/* ==============================
    EMPTY STATES
 ============================== */
 
@@ -400,6 +499,31 @@ button:disabled:hover {
 
 .loading h2 {
   color: #52606d;
+}
+
+/* ==============================
+   WORKOUT SEARCH
+============================== */
+
+.workout-search {
+  margin-bottom: 15px;
+}
+
+.workout-search input {
+  width: 100%;
+  padding: 10px 12px;
+
+  border: 1px solid #ccd3da;
+  border-radius: 6px;
+
+  background: white;
+  color: #17202a;
+}
+
+.workout-search input:focus {
+  outline: none;
+  border-color: #52606d;
+  box-shadow: 0 0 0 2px rgba(82, 96, 109, 0.12);
 }
 
 /* ==============================
@@ -492,7 +616,6 @@ button:disabled:hover {
   }
 
   .stats {
-    width: 100%;
     gap: 8px;
   }
 
@@ -525,7 +648,6 @@ button:disabled:hover {
 
   .recent-weight {
     font-size: 18px;
-    white-space: nowrap;
   }
 
   .history-item {
@@ -550,6 +672,30 @@ button:disabled:hover {
   .exercise-form {
     padding: 13px;
   }
+
+  .pr-row {
+    padding: 9px 0;
+  }
+
+  .pr-number {
+    font-size: 15px;
+  }
+
+  .history-actions {
+    width: 100%;
+  }
+
+  .history-actions button {
+    flex: 1;
+  }
+
+  .edit-actions {
+    flex-direction: column;
+  }
+
+  .edit-actions button {
+    width: 100%;
+  }
 }
 
 /* ==============================
@@ -572,56 +718,4 @@ button:disabled:hover {
   .stats span {
     font-size: 11px;
   }
-}
-
-.history-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.edit-button,
-.delete-button,
-.cancel-edit-button {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.edit-button {
-  background: #e8f0ff;
-  color: #2457a6;
-}
-
-.delete-button {
-  background: #ffe8e8;
-  color: #b42318;
-}
-
-.cancel-edit-button {
-  background: #eeeeee;
-  color: #333333;
-}
-
-.edit-button:hover,
-.delete-button:hover,
-.cancel-edit-button:hover {
-  opacity: 0.85;
-}
-
-.edit-workout-form {
-  width: 100%;
-}
-
-.edit-workout-form h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.edit-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
 }
