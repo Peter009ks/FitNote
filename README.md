@@ -234,8 +234,9 @@ The seed script creates:
 ---
 
 ## Project Structure
+
+```text
 FitNote/
-│
 ├── backend/
 │   ├── controllers/
 │   │   ├── exerciseController.js
@@ -255,7 +256,6 @@ FitNote/
 │   ├── seed/
 │   │   └── seed.js
 │   │
-│   ├── .env
 │   ├── api-test.http
 │   ├── package.json
 │   └── server.js
@@ -287,6 +287,7 @@ FitNote/
 ├── package.json
 ├── package-lock.json
 └── README.md
+```
 
 ## License
 
